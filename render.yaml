@@ -1,0 +1,21 @@
+# Render Blueprint — deploys the FastAPI backend on the free plan.
+# The frontend deploys separately on Vercel (Root Directory: frontend/).
+# Import this repo as a Blueprint on Render, then set the three secrets below.
+services:
+  - type: web
+    name: proving-ground-backend
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false            # https://console.groq.com/keys
+      - key: APP_TOKEN
+        sync: false            # shared access secret; required or every route 401s
+      - key: DATABASE_URL
+        sync: false            # Neon: postgresql+psycopg2://USER:PASS@HOST/DB
+      - key: FRONTEND_ORIGIN
+        sync: false            # your https://<app>.vercel.app
