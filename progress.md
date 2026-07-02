@@ -2,6 +2,33 @@
 
 Running log. Newest at top.
 
+## 2026-07-02 — DEPLOYED ✅ live end-to-end
+- **Live:** frontend https://proving-ground-fc.vercel.app · backend https://proving-ground-seven.vercel.app
+  · DB Neon Postgres. Both on Vercel free (no card), $0.
+- Two Vercel projects from one repo (root `frontend/` and `backend/`). Backend env set:
+  GROQ_API_KEY, DATABASE_URL (Neon +psycopg2), APP_TOKEN=`TYLERDURDEN`, FRONTEND_ORIGIN.
+- **Gotcha hit + fixed:** lock screen showed "Wrong token" for every password — it was CORS, not the
+  token. `FRONTEND_ORIGIN` had to be the frontend origin **exactly** (`https://proving-ground-fc.vercel.app`,
+  no trailing slash) + a backend redeploy. `verify()` reports any failed request as a bad token, so a
+  blocked CORS request looked identical. Confirmed fixed via preflight returning ACAO.
+- **SSE streams live** through Vercel's Python runtime (no buffering) — tokens appear as generated.
+- Starts at bout #1 (Neon wiped clean pre-deploy). Open: trailing-slash hardening on FRONTEND_ORIGIN
+  (not yet done); CLAUDE.md still has stale OpenRouter/shadcn lines.
+
+## 2026-07-02 — Backend host: Render → Vercel serverless (Render/Railway want a card)
+- Render (and Railway/Fly/Koyeb/Cloud Run) all require a credit card even for free; deploying the
+  backend on **Vercel Python functions** instead (free, no card, same platform as the frontend).
+- Refactor for serverless: dropped the FastAPI **lifespan** hook (Vercel may not run it) and made
+  the httpx client **lazy** via `provider.get_client()` — one keep-alive client per warm process,
+  works under uvicorn and serverless alike. `stream_response` no longer takes `request`.
+- Added `backend/api/index.py` (exports the ASGI `app`) + `backend/vercel.json` (rewrites all paths
+  to the function). Removed `render.yaml`. Project folder renamed → `proving-ground`.
+- Deploy = TWO Vercel projects from one repo: root `frontend/` and root `backend/`. Backend env:
+  GROQ_API_KEY, DATABASE_URL (Neon +psycopg2), APP_TOKEN, FRONTEND_ORIGIN.
+- Neon verified earlier (schema + wins/draws aggregate on Postgres; left empty, next bout id=1).
+- **Watch on deploy:** SSE through Vercel's Python runtime — confirm tokens stream live vs arrive
+  in one lump, and that generations finish inside the function time limit. Tests: 4 passed.
+
 ## 2026-07-02 — Auth gate + write-once verdicts (hardening for public deploy)
 - **Shared-token auth**: one `APP_TOKEN` secret gates every route but `/health`. New `auth.py`
   `require_token` dependency (Bearer header or `?token=` for SSE, `secrets.compare_digest`).

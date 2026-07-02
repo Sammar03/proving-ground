@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from ..config import settings
 from ..db import SessionLocal, get_db
 from ..models import Response, Run
-from ..provider import stream_model
+from ..provider import get_client, stream_model
 from ..schemas import LeaderRow, RunCreate, RunOut
 
 router = APIRouter()
@@ -41,7 +41,7 @@ def _persist(response_id: int, **fields) -> None:
 
 
 @router.get("/responses/{response_id}/stream")
-async def stream_response(response_id: int, request: Request):
+async def stream_response(response_id: int):
     # read what we need and release the session before streaming (no lock held during the stream)
     db = SessionLocal()
     try:
@@ -65,7 +65,7 @@ async def stream_response(response_id: int, request: Request):
             return
 
         parts: list[str] = []
-        async for ev in stream_model(request.app.state.http, model, prompt):
+        async for ev in stream_model(get_client(), model, prompt):
             if "delta" in ev:
                 parts.append(ev["delta"])
                 yield sse({"delta": ev["delta"]})

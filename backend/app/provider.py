@@ -11,6 +11,17 @@ URL = "https://api.groq.com/openai/v1/chat/completions"
 # bound DNS/connect waits so a flaky network fails fast instead of hanging 60s
 TIMEOUT = httpx.Timeout(60.0, connect=10.0)
 
+_client: httpx.AsyncClient | None = None
+
+
+def get_client() -> httpx.AsyncClient:
+    """One keep-alive client per warm process. Lazy so it works on serverless
+    (Vercel) with no lifespan hook, and still reuses the TLS connection when warm."""
+    global _client
+    if _client is None or _client.is_closed:
+        _client = httpx.AsyncClient(timeout=TIMEOUT)
+    return _client
+
 
 async def stream_model(client: httpx.AsyncClient, model: str, prompt: str):
     """Stream one model. Yields event dicts and never raises:

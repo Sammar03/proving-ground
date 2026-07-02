@@ -37,20 +37,21 @@ Create a project at https://neon.tech and copy the connection string. Rewrite th
 prefix to `postgresql+psycopg2://…` — SQLAlchemy needs the driver name. Tables
 auto-create on first boot; no migration step.
 
-### 2. Backend — Render (free)
-Deploy from this repo via `render.yaml` (Blueprint), or a manual web service with
-Root Directory `backend/`. Set these env vars in the dashboard:
+### 2. Backend — Vercel (free)
+The backend runs as a Vercel Python function (`backend/api/index.py` + `backend/vercel.json`).
+Create a **second** Vercel project from this repo with **Root Directory** `backend/`, and set:
 
 - `GROQ_API_KEY`
-- `DATABASE_URL` — the Neon string
-- `FRONTEND_ORIGIN` — your Vercel URL (fill in after the frontend deploys)
+- `DATABASE_URL` — the Neon string (`postgresql+psycopg2://…`)
+- `APP_TOKEN` — the shared access secret
+- `FRONTEND_ORIGIN` — your frontend's Vercel URL (fill in after the frontend deploys)
 
-Free services cold-start after ~15 min idle (first request ~30–50s).
+Serverless cold-starts after idle; each SSE stream must finish within the function time limit.
 
 ### 3. Frontend — Vercel
-Import the repo, set **Root Directory** to `frontend/`, and set:
+Create a project from this repo with **Root Directory** `frontend/`, and set:
 
-- `NEXT_PUBLIC_API_URL` — the Render backend URL
+- `NEXT_PUBLIC_API_URL` — the backend project's URL
 
 ### Order (they reference each other's URL)
 1. Deploy the backend → copy its URL.
