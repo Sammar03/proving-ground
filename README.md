@@ -1,8 +1,7 @@
 # Proving Ground
 
 Send one prompt to several free LLMs, stream their answers side by side, call a
-winner, and track a standings table. Single-user portfolio project. $0 to run —
-free models only.
+winner, and track a standings table.
 
 - **Frontend:** Next.js (App Router), TypeScript, Tailwind → Vercel.
 - **Backend:** FastAPI, SQLAlchemy, SSE streaming → Render (free).
