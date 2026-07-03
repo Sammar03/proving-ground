@@ -11,7 +11,7 @@ free models only.
   `/openai/v1/models`.
 - **DB:** sqlite for local dev, Neon Postgres in production.
 
-## Local development
+## Run Locally
 
 Backend:
 
@@ -29,31 +29,3 @@ Frontend:
     npm run dev
 
 Get a free Groq key at https://console.groq.com/keys.
-
-## Deployment
-
-### 1. Database — Neon (free Postgres)
-Create a project at https://neon.tech and copy the connection string. Rewrite the
-prefix to `postgresql+psycopg2://…` — SQLAlchemy needs the driver name. Tables
-auto-create on first boot; no migration step.
-
-### 2. Backend — Vercel (free)
-The backend runs as a Vercel Python function (`backend/api/index.py` + `backend/vercel.json`).
-Create a **second** Vercel project from this repo with **Root Directory** `backend/`, and set:
-
-- `GROQ_API_KEY`
-- `DATABASE_URL` — the Neon string (`postgresql+psycopg2://…`)
-- `APP_TOKEN` — the shared access secret
-- `FRONTEND_ORIGIN` — your frontend's Vercel URL (fill in after the frontend deploys)
-
-Serverless cold-starts after idle; each SSE stream must finish within the function time limit.
-
-### 3. Frontend — Vercel
-Create a project from this repo with **Root Directory** `frontend/`, and set:
-
-- `NEXT_PUBLIC_API_URL` — the backend project's URL
-
-### Order (they reference each other's URL)
-1. Deploy the backend → copy its URL.
-2. Set the frontend's `NEXT_PUBLIC_API_URL`, deploy it → copy its URL.
-3. Set the backend's `FRONTEND_ORIGIN` to the Vercel URL, redeploy the backend.
