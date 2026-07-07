@@ -1,5 +1,3 @@
-"""stream_model: yields token deltas, captures usage (compute/tokens) on done, and turns a
-429 into a single error event without raising."""
 import asyncio
 
 import httpx
