@@ -1,5 +1,3 @@
-"""Pin a clean throwaway sqlite DB BEFORE any app import. An env var beats the .env file
-in pydantic-settings, so this overrides backend/.env regardless of test import order."""
 import os
 import pathlib
 import tempfile
