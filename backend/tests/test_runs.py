@@ -1,5 +1,3 @@
-"""End-to-end: POST creates PENDING rows; the /stream endpoint streams deltas, persists the
-final result, and the vote then feeds the leaderboard. DB pinned by tests/conftest.py."""
 import json
 
 from fastapi.testclient import TestClient
