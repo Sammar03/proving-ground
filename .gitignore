@@ -1,5 +1,6 @@
 .env
 .env.local
+progress.md
 .env.*.local
 __pycache__/
 *.pyc
